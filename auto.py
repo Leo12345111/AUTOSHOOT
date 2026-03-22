@@ -84,7 +84,7 @@ holdBox.Size = UDim2.fromOffset(70, 30)
 holdBox.Position = UDim2.fromOffset(120, 120)
 holdBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 holdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-holdBox.Text = "0.75" -- Default start up value
+holdBox.Text = "0.75"
 holdBox.Parent = controlPanel
 
 local toggleLabel = Instance.new("TextLabel")
@@ -202,7 +202,11 @@ RunService.RenderStepped:Connect(function()
                 local targetPlayer = Players:GetPlayerFromCharacter(model)
                 
                 if humanoid and humanoid.Health > 0 and targetPlayer and targetPlayer ~= player then
-                    targetFound = true
+                    -- === TEAM CHECK ===
+                    -- If the game doesn't use teams, or the target is on a different team, allow it.
+                    if targetPlayer.Team == nil or targetPlayer.Team ~= player.Team then
+                        targetFound = true
+                    end
                 end
             end
         end

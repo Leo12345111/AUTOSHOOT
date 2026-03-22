@@ -202,8 +202,6 @@ RunService.RenderStepped:Connect(function()
                 local targetPlayer = Players:GetPlayerFromCharacter(model)
                 
                 if humanoid and humanoid.Health > 0 and targetPlayer and targetPlayer ~= player then
-                    -- === TEAM CHECK ===
-                    -- If the game doesn't use teams, or the target is on a different team, allow it.
                     if targetPlayer.Team == nil or targetPlayer.Team ~= player.Team then
                         targetFound = true
                     end

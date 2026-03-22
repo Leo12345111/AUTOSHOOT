@@ -22,8 +22,8 @@ indicator.Visible = false
 indicator.Parent = screenGui
 
 local controlPanel = Instance.new("Frame")
-controlPanel.Size = UDim2.fromOffset(200, 190)
-controlPanel.Position = UDim2.new(0.5, -100, 0.5, -95)
+controlPanel.Size = UDim2.fromOffset(200, 230)
+controlPanel.Position = UDim2.new(0.5, -100, 0.5, -115)
 controlPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 controlPanel.BorderSizePixel = 2
 controlPanel.Active = true
@@ -70,9 +70,26 @@ chanceBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 chanceBox.Text = "100"
 chanceBox.Parent = controlPanel
 
+local holdLabel = Instance.new("TextLabel")
+holdLabel.Size = UDim2.fromOffset(100, 30)
+holdLabel.Position = UDim2.fromOffset(10, 120)
+holdLabel.BackgroundTransparency = 1
+holdLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+holdLabel.Text = "Hold Time (s):"
+holdLabel.TextXAlignment = Enum.TextXAlignment.Left
+holdLabel.Parent = controlPanel
+
+local holdBox = Instance.new("TextBox")
+holdBox.Size = UDim2.fromOffset(70, 30)
+holdBox.Position = UDim2.fromOffset(120, 120)
+holdBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+holdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+holdBox.Text = "0.75" -- Default start up value
+holdBox.Parent = controlPanel
+
 local toggleLabel = Instance.new("TextLabel")
 toggleLabel.Size = UDim2.new(1, -20, 0, 30)
-toggleLabel.Position = UDim2.fromOffset(10, 120)
+toggleLabel.Position = UDim2.fromOffset(10, 160)
 toggleLabel.BackgroundTransparency = 1
 toggleLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 toggleLabel.Text = "Status: ON (B to Toggle)"
@@ -80,7 +97,7 @@ toggleLabel.Parent = controlPanel
 
 local infoLabel = Instance.new("TextLabel")
 infoLabel.Size = UDim2.new(1, -20, 0, 30)
-infoLabel.Position = UDim2.fromOffset(10, 150)
+infoLabel.Position = UDim2.fromOffset(10, 190)
 infoLabel.BackgroundTransparency = 1
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoLabel.Text = "Press N to hide menu"
@@ -191,7 +208,6 @@ RunService.RenderStepped:Connect(function()
         end
     end
     
-    -- Store real-time status so the miss logic knows if you're aiming at them
     currentTargetFound = targetFound 
     
     hitbox.Size = Vector3.new(0.5, 0.5, hitDistance)
@@ -207,7 +223,8 @@ RunService.RenderStepped:Connect(function()
         rightClickStartTime = 0 
     end
     
-    local hasHeldLongEnough = isHoldingRightClick and (os.clock() - rightClickStartTime >= 0.75)
+    local holdTimeRequired = tonumber(holdBox.Text) or 0.75
+    local hasHeldLongEnough = isHoldingRightClick and (os.clock() - rightClickStartTime >= holdTimeRequired)
     
     if botEnabled and targetFound and hasHeldLongEnough and not isFlashing then
         isFlashing = true

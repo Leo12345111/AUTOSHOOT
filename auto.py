@@ -204,16 +204,18 @@ RunService.RenderStepped:Connect(function()
                 if humanoid and humanoid.Health > 0 then
                     local targetPlayer = Players:GetPlayerFromCharacter(model)
                     
+                    isEnemyConfirmed = true
+                    
                     if targetPlayer then
-                        if player.Team and targetPlayer.Team and player.Team == targetPlayer.Team then
-                            isEnemyConfirmed = false
+                        if player.Team ~= nil and targetPlayer.Team ~= nil then
+                            if player.Team == targetPlayer.Team then
+                                isEnemyConfirmed = false
+                            end
                         elseif player.TeamColor == targetPlayer.TeamColor then
-                            isEnemyConfirmed = false
-                        else
-                            isEnemyConfirmed = true
+                            if not player.Neutral and not targetPlayer.Neutral then
+                                isEnemyConfirmed = false
+                            end
                         end
-                    else
-                        isEnemyConfirmed = true
                     end
                     
                     if isEnemyConfirmed then
@@ -224,9 +226,12 @@ RunService.RenderStepped:Connect(function()
                         local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
                         local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
                         
+                        local pcts = {pctX, pctY, pctZ}
+                        table.sort(pcts)
+                        
                         local threshold = (hitPart.Name == "Head") and 0.925 or 0.75
                         
-                        if pctX <= threshold and pctY <= threshold and pctZ <= threshold then
+                        if pcts[1] <= threshold and pcts[2] <= threshold then
                             isCenterHit = true
                         end
                     end

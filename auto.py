@@ -189,38 +189,23 @@ RunService.RenderStepped:Connect(function()
     local direction = camera.CFrame.LookVector * 10000
     
     local result = workspace:Raycast(origin, direction, raycastParams)
-    
     local hitDistance = 10000
-    local targetFound = false
+    local potentialTarget = nil
+    local potentialPlayer = nil
     
     if result then
         hitDistance = result.Distance
         if result.Instance then
             local model = result.Instance:FindFirstAncestorOfClass("Model")
-            if model then
+            if model and model ~= character then
                 local humanoid = model:FindFirstChildOfClass("Humanoid")
-                local targetPlayer = Players:GetPlayerFromCharacter(model)
-                
-                if humanoid and humanoid.Health > 0 and targetPlayer and targetPlayer ~= player then
-                    local isEnemy = false
-                    
-                    if targetPlayer.Neutral or player.Neutral then
-                        isEnemy = true
-                    elseif targetPlayer.Team ~= player.Team then
-                        isEnemy = true
-                    elseif targetPlayer.TeamColor ~= player.TeamColor then
-                        isEnemy = true
-                    end
-                    
-                    if isEnemy then
-                        targetFound = true
-                    end
+                if humanoid and humanoid.Health > 0 then
+                    potentialTarget = model
+                    potentialPlayer = Players:GetPlayerFromCharacter(model)
                 end
             end
         end
     end
-    
-    currentTargetFound = targetFound 
     
     hitbox.Size = Vector3.new(0.5, 0.5, hitDistance)
     hitbox.CFrame = camera.CFrame * CFrame.new(0, 0, -hitDistance / 2)
@@ -238,34 +223,56 @@ RunService.RenderStepped:Connect(function()
     local holdTimeRequired = tonumber(holdBox.Text) or 0.3
     local hasHeldLongEnough = isHoldingRightClick and (os.clock() - rightClickStartTime >= holdTimeRequired)
     
-    if botEnabled and targetFound and hasHeldLongEnough and not isFlashing then
-        isFlashing = true
-        
-        local currentDelay = tonumber(delayBox.Text) or 0.3
-        local chanceToHit = tonumber(chanceBox.Text) or 100
-        chanceToHit = math.clamp(chanceToHit, 0, 100)
-        
-        local roll = math.random(1, 100)
-        local isHit = roll <= chanceToHit
-        
-        local function triggerFlash()
-            indicator.Visible = true
-            task.delay(currentDelay, function()
-                indicator.Visible = false
-                isFlashing = false
-            end)
-        end
-        
-        if isHit then
-            triggerFlash()
+    local isEnemyConfirmed = false
+    
+    if potentialTarget then
+        if potentialPlayer then
+            if player.Team == nil or potentialPlayer.Team == nil then
+                isEnemyConfirmed = true
+            elseif player.Team ~= potentialPlayer.Team then
+                isEnemyConfirmed = true
+            elseif player.TeamColor ~= potentialPlayer.TeamColor then
+                isEnemyConfirmed = true
+            elseif potentialPlayer.Neutral or player.Neutral then
+                isEnemyConfirmed = true
+            end
         else
-            task.spawn(function()
-                task.wait(0.7)
-                while currentTargetFound do
-                    task.wait(0.1)
-                end
+            isEnemyConfirmed = true
+        end
+    end
+
+    currentTargetFound = isEnemyConfirmed
+
+    if botEnabled and hasHeldLongEnough and not isFlashing then
+        if isEnemyConfirmed then
+            isFlashing = true
+            
+            local currentDelay = tonumber(delayBox.Text) or 0.3
+            local chanceToHit = tonumber(chanceBox.Text) or 100
+            chanceToHit = math.clamp(chanceToHit, 0, 100)
+            
+            local roll = math.random(1, 100)
+            local isHit = roll <= chanceToHit
+            
+            local function triggerFlash()
+                indicator.Visible = true
+                task.delay(currentDelay, function()
+                    indicator.Visible = false
+                    isFlashing = false
+                end)
+            end
+            
+            if isHit then
                 triggerFlash()
-            end)
+            else
+                task.spawn(function()
+                    task.wait(0.7)
+                    while currentTargetFound do
+                        task.wait(0.1)
+                    end
+                    triggerFlash()
+                end)
+            end
         end
     end
 end)

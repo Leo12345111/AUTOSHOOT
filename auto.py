@@ -219,20 +219,24 @@ RunService.RenderStepped:Connect(function()
                     end
                     
                     if isEnemyConfirmed then
-                        local localPos = hitPart.CFrame:PointToObjectSpace(result.Position)
-                        local halfSize = hitPart.Size / 2
-                        
-                        local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
-                        local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
-                        local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
-                        
-                        local pcts = {pctX, pctY, pctZ}
-                        table.sort(pcts)
-                        
-                        local threshold = (hitPart.Name == "Head") and 0.925 or 0.75
-                        
-                        if pcts[1] <= threshold and pcts[2] <= threshold then
+                        if hitPart.Name == "Head" then
                             isCenterHit = true
+                        else
+                            local localPos = hitPart.CFrame:PointToObjectSpace(result.Position)
+                            local halfSize = hitPart.Size / 2
+                            
+                            local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
+                            local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
+                            local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
+                            
+                            local pcts = {pctX, pctY, pctZ}
+                            table.sort(pcts)
+                            
+                            local threshold = 0.75
+                            
+                            if pcts[1] <= threshold and pcts[2] <= threshold then
+                                isCenterHit = true
+                            end
                         end
                     end
                 end

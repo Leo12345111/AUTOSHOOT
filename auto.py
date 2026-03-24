@@ -202,7 +202,17 @@ RunService.RenderStepped:Connect(function()
                 local targetPlayer = Players:GetPlayerFromCharacter(model)
                 
                 if humanoid and humanoid.Health > 0 and targetPlayer and targetPlayer ~= player then
-                    if targetPlayer.Team == nil or targetPlayer.Team ~= player.Team then
+                    local isEnemy = false
+                    
+                    if targetPlayer.Neutral or player.Neutral then
+                        isEnemy = true
+                    elseif targetPlayer.Team ~= player.Team then
+                        isEnemy = true
+                    elseif targetPlayer.TeamColor ~= player.TeamColor then
+                        isEnemy = true
+                    end
+                    
+                    if isEnemy then
                         targetFound = true
                     end
                 end
@@ -251,11 +261,9 @@ RunService.RenderStepped:Connect(function()
         else
             task.spawn(function()
                 task.wait(0.7)
-                
                 while currentTargetFound do
                     task.wait(0.1)
                 end
-                
                 triggerFlash()
             end)
         end

@@ -190,18 +190,46 @@ RunService.RenderStepped:Connect(function()
     
     local result = workspace:Raycast(origin, direction, raycastParams)
     local hitDistance = 10000
-    local potentialTarget = nil
-    local potentialPlayer = nil
+    local isEnemyConfirmed = false
+    local isCenterHit = false
     
     if result then
         hitDistance = result.Distance
         if result.Instance then
-            local model = result.Instance:FindFirstAncestorOfClass("Model")
+            local hitPart = result.Instance
+            local model = hitPart:FindFirstAncestorOfClass("Model")
+            
             if model and model ~= character then
                 local humanoid = model:FindFirstChildOfClass("Humanoid")
                 if humanoid and humanoid.Health > 0 then
-                    potentialTarget = model
-                    potentialPlayer = Players:GetPlayerFromCharacter(model)
+                    local targetPlayer = Players:GetPlayerFromCharacter(model)
+                    
+                    if targetPlayer then
+                        if player.Team and targetPlayer.Team and player.Team == targetPlayer.Team then
+                            isEnemyConfirmed = false
+                        elseif player.TeamColor == targetPlayer.TeamColor then
+                            isEnemyConfirmed = false
+                        else
+                            isEnemyConfirmed = true
+                        end
+                    else
+                        isEnemyConfirmed = true
+                    end
+                    
+                    if isEnemyConfirmed then
+                        local localPos = hitPart.CFrame:PointToObjectSpace(result.Position)
+                        local halfSize = hitPart.Size / 2
+                        
+                        local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
+                        local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
+                        local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
+                        
+                        local threshold = (hitPart.Name == "Head") and 0.925 or 0.75
+                        
+                        if pctX <= threshold and pctY <= threshold and pctZ <= threshold then
+                            isCenterHit = true
+                        end
+                    end
                 end
             end
         end
@@ -223,28 +251,10 @@ RunService.RenderStepped:Connect(function()
     local holdTimeRequired = tonumber(holdBox.Text) or 0.3
     local hasHeldLongEnough = isHoldingRightClick and (os.clock() - rightClickStartTime >= holdTimeRequired)
     
-    local isEnemyConfirmed = false
-    
-    if potentialTarget then
-        if potentialPlayer then
-            if player.Team == nil or potentialPlayer.Team == nil then
-                isEnemyConfirmed = true
-            elseif player.Team ~= potentialPlayer.Team then
-                isEnemyConfirmed = true
-            elseif player.TeamColor ~= potentialPlayer.TeamColor then
-                isEnemyConfirmed = true
-            elseif potentialPlayer.Neutral or player.Neutral then
-                isEnemyConfirmed = true
-            end
-        else
-            isEnemyConfirmed = true
-        end
-    end
-
-    currentTargetFound = isEnemyConfirmed
+    currentTargetFound = isEnemyConfirmed and isCenterHit
 
     if botEnabled and hasHeldLongEnough and not isFlashing then
-        if isEnemyConfirmed then
+        if currentTargetFound then
             isFlashing = true
             
             local currentDelay = tonumber(delayBox.Text) or 0.3

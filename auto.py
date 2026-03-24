@@ -50,7 +50,7 @@ delayBox.Size = UDim2.fromOffset(70, 30)
 delayBox.Position = UDim2.fromOffset(120, 40)
 delayBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 delayBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-delayBox.Text = "0.04"
+delayBox.Text = "0.3"
 delayBox.Parent = controlPanel
 
 local chanceLabel = Instance.new("TextLabel")
@@ -84,7 +84,7 @@ holdBox.Size = UDim2.fromOffset(70, 30)
 holdBox.Position = UDim2.fromOffset(120, 120)
 holdBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 holdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-holdBox.Text = "0.75"
+holdBox.Text = "0.3"
 holdBox.Parent = controlPanel
 
 local toggleLabel = Instance.new("TextLabel")
@@ -225,13 +225,13 @@ RunService.RenderStepped:Connect(function()
         rightClickStartTime = 0 
     end
     
-    local holdTimeRequired = tonumber(holdBox.Text) or 0.75
+    local holdTimeRequired = tonumber(holdBox.Text) or 0.3
     local hasHeldLongEnough = isHoldingRightClick and (os.clock() - rightClickStartTime >= holdTimeRequired)
     
     if botEnabled and targetFound and hasHeldLongEnough and not isFlashing then
         isFlashing = true
         
-        local currentDelay = tonumber(delayBox.Text) or 0.04
+        local currentDelay = tonumber(delayBox.Text) or 0.3
         local chanceToHit = tonumber(chanceBox.Text) or 100
         chanceToHit = math.clamp(chanceToHit, 0, 100)
         

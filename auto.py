@@ -100,7 +100,7 @@ infoLabel.Size = UDim2.new(1, -20, 0, 30)
 infoLabel.Position = UDim2.fromOffset(10, 190)
 infoLabel.BackgroundTransparency = 1
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-infoLabel.Text = "Press N to hide menu"
+infoLabel.Text = "Press M to hide menu"
 infoLabel.Parent = controlPanel
 
 local dragging = false
@@ -138,7 +138,7 @@ local botEnabled = true
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     
-    if input.KeyCode == Enum.KeyCode.N then
+    if input.KeyCode == Enum.KeyCode.M then
         controlPanel.Visible = not controlPanel.Visible
     elseif input.KeyCode == Enum.KeyCode.B then
         botEnabled = not botEnabled
@@ -168,8 +168,8 @@ local raycastParams = RaycastParams.new()
 raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
 local isFlashing = false
-local rightClickStartTime = 0
-local isHoldingRightClick = false
+local keyStartTime = 0
+local isHoldingKey = false
 local currentTargetFound = false 
 
 RunService.RenderStepped:Connect(function()
@@ -247,18 +247,18 @@ RunService.RenderStepped:Connect(function()
     hitbox.Size = Vector3.new(0.5, 0.5, hitDistance)
     hitbox.CFrame = camera.CFrame * CFrame.new(0, 0, -hitDistance / 2)
     
-    if UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
-        if not isHoldingRightClick then
-            isHoldingRightClick = true
-            rightClickStartTime = os.clock()
+    if UserInputService:IsKeyDown(Enum.KeyCode.N) then
+        if not isHoldingKey then
+            isHoldingKey = true
+            keyStartTime = os.clock()
         end
     else
-        isHoldingRightClick = false
-        rightClickStartTime = 0 
+        isHoldingKey = false
+        keyStartTime = 0 
     end
     
     local holdTimeRequired = tonumber(holdBox.Text) or 0.3
-    local hasHeldLongEnough = isHoldingRightClick and (os.clock() - rightClickStartTime >= holdTimeRequired)
+    local hasHeldLongEnough = isHoldingKey and (os.clock() - keyStartTime >= holdTimeRequired)
     
     currentTargetFound = isEnemyConfirmed and isCenterHit
 

@@ -50,7 +50,7 @@ delayBox.Size = UDim2.fromOffset(70, 30)
 delayBox.Position = UDim2.fromOffset(120, 40)
 delayBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 delayBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-delayBox.Text = "0.3"
+delayBox.Text = "0.1"
 delayBox.Parent = controlPanel
 
 local chanceLabel = Instance.new("TextLabel")
@@ -101,7 +101,7 @@ holdBox.Size = UDim2.fromOffset(70, 30)
 holdBox.Position = UDim2.fromOffset(120, 160)
 holdBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 holdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-holdBox.Text = "0.3"
+holdBox.Text = "0"
 holdBox.Parent = controlPanel
 
 local toggleLabel = Instance.new("TextLabel")
@@ -278,7 +278,7 @@ RunService.RenderStepped:Connect(function()
         keyStartTime = 0 
     end
     
-    local holdTimeRequired = tonumber(holdBox.Text) or 0.3
+    local holdTimeRequired = tonumber(holdBox.Text) or 0
     local hasHeldLongEnough = isHoldingKey and (os.clock() - keyStartTime >= holdTimeRequired)
     
     currentTargetFound = isEnemyConfirmed and isCenterHit
@@ -287,7 +287,7 @@ RunService.RenderStepped:Connect(function()
         if currentTargetFound then
             isFlashing = true
             
-            local currentDelay = tonumber(delayBox.Text) or 0.3
+            local currentDelay = tonumber(delayBox.Text) or 0.1
             local chanceToHit = 100
             
             if isHeadHit then
@@ -301,23 +301,15 @@ RunService.RenderStepped:Connect(function()
             local roll = math.random(1, 100)
             local isHit = roll <= chanceToHit
             
-            local function triggerFlash()
+            if isHit then
                 indicator.Visible = true
                 task.delay(currentDelay, function()
                     indicator.Visible = false
                     isFlashing = false
                 end)
-            end
-            
-            if isHit then
-                triggerFlash()
             else
-                task.spawn(function()
-                    task.wait(0.7)
-                    while currentTargetFound do
-                        task.wait(0.1)
-                    end
-                    triggerFlash()
+                task.delay(currentDelay, function()
+                    isFlashing = false
                 end)
             end
         end

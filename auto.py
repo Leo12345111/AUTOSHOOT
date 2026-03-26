@@ -22,8 +22,8 @@ indicator.Visible = false
 indicator.Parent = screenGui
 
 local controlPanel = Instance.new("Frame")
-controlPanel.Size = UDim2.fromOffset(200, 230)
-controlPanel.Position = UDim2.new(0.5, -100, 0.5, -115)
+controlPanel.Size = UDim2.fromOffset(200, 270)
+controlPanel.Position = UDim2.new(0.5, -100, 0.5, -135)
 controlPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 controlPanel.BorderSizePixel = 2
 controlPanel.Active = true
@@ -58,7 +58,7 @@ chanceLabel.Size = UDim2.fromOffset(100, 30)
 chanceLabel.Position = UDim2.fromOffset(10, 80)
 chanceLabel.BackgroundTransparency = 1
 chanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-chanceLabel.Text = "Hit Chance %:"
+chanceLabel.Text = "Head Chance %:"
 chanceLabel.TextXAlignment = Enum.TextXAlignment.Left
 chanceLabel.Parent = controlPanel
 
@@ -70,9 +70,26 @@ chanceBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 chanceBox.Text = "100"
 chanceBox.Parent = controlPanel
 
+local bodyChanceLabel = Instance.new("TextLabel")
+bodyChanceLabel.Size = UDim2.fromOffset(100, 30)
+bodyChanceLabel.Position = UDim2.fromOffset(10, 120)
+bodyChanceLabel.BackgroundTransparency = 1
+bodyChanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+bodyChanceLabel.Text = "Body Chance %:"
+bodyChanceLabel.TextXAlignment = Enum.TextXAlignment.Left
+bodyChanceLabel.Parent = controlPanel
+
+local bodyChanceBox = Instance.new("TextBox")
+bodyChanceBox.Size = UDim2.fromOffset(70, 30)
+bodyChanceBox.Position = UDim2.fromOffset(120, 120)
+bodyChanceBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+bodyChanceBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+bodyChanceBox.Text = "100"
+bodyChanceBox.Parent = controlPanel
+
 local holdLabel = Instance.new("TextLabel")
 holdLabel.Size = UDim2.fromOffset(100, 30)
-holdLabel.Position = UDim2.fromOffset(10, 120)
+holdLabel.Position = UDim2.fromOffset(10, 160)
 holdLabel.BackgroundTransparency = 1
 holdLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 holdLabel.Text = "Hold Time (s):"
@@ -81,7 +98,7 @@ holdLabel.Parent = controlPanel
 
 local holdBox = Instance.new("TextBox")
 holdBox.Size = UDim2.fromOffset(70, 30)
-holdBox.Position = UDim2.fromOffset(120, 120)
+holdBox.Position = UDim2.fromOffset(120, 160)
 holdBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 holdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 holdBox.Text = "0.3"
@@ -89,7 +106,7 @@ holdBox.Parent = controlPanel
 
 local toggleLabel = Instance.new("TextLabel")
 toggleLabel.Size = UDim2.new(1, -20, 0, 30)
-toggleLabel.Position = UDim2.fromOffset(10, 160)
+toggleLabel.Position = UDim2.fromOffset(10, 200)
 toggleLabel.BackgroundTransparency = 1
 toggleLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 toggleLabel.Text = "Status: ON (B to Toggle)"
@@ -97,7 +114,7 @@ toggleLabel.Parent = controlPanel
 
 local infoLabel = Instance.new("TextLabel")
 infoLabel.Size = UDim2.new(1, -20, 0, 30)
-infoLabel.Position = UDim2.fromOffset(10, 190)
+infoLabel.Position = UDim2.fromOffset(10, 230)
 infoLabel.BackgroundTransparency = 1
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoLabel.Text = "Press J to hide menu"
@@ -192,6 +209,8 @@ RunService.RenderStepped:Connect(function()
     local hitDistance = 10000
     local isEnemyConfirmed = false
     local isCenterHit = false
+    local isHeadHit = false
+    local isBodyHit = false
     
     if result then
         hitDistance = result.Distance
@@ -221,6 +240,7 @@ RunService.RenderStepped:Connect(function()
                     if isEnemyConfirmed then
                         if hitPart.Name == "Head" then
                             isCenterHit = true
+                            isHeadHit = true
                         else
                             local localPos = hitPart.CFrame:PointToObjectSpace(result.Position)
                             local halfSize = hitPart.Size / 2
@@ -236,6 +256,7 @@ RunService.RenderStepped:Connect(function()
                             
                             if pcts[1] <= threshold and pcts[2] <= threshold then
                                 isCenterHit = true
+                                isBodyHit = true
                             end
                         end
                     end
@@ -267,7 +288,14 @@ RunService.RenderStepped:Connect(function()
             isFlashing = true
             
             local currentDelay = tonumber(delayBox.Text) or 0.3
-            local chanceToHit = tonumber(chanceBox.Text) or 100
+            local chanceToHit = 100
+            
+            if isHeadHit then
+                chanceToHit = tonumber(chanceBox.Text) or 100
+            elseif isBodyHit then
+                chanceToHit = tonumber(bodyChanceBox.Text) or 100
+            end
+            
             chanceToHit = math.clamp(chanceToHit, 0, 100)
             
             local roll = math.random(1, 100)

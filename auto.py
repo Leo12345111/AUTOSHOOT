@@ -238,7 +238,10 @@ RunService.RenderStepped:Connect(function()
                     end
                     
                     if isEnemyConfirmed then
-                        if hitPart.Name == "Head" then
+                        -- Check if we hit the head OR an accessory (like hats/hair)
+                        local isAccessory = hitPart:FindFirstAncestorOfClass("Accessory")
+                        
+                        if hitPart.Name == "Head" or isAccessory then
                             isCenterHit = true
                             isHeadHit = true
                         else

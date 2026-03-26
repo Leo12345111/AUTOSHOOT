@@ -100,7 +100,7 @@ infoLabel.Size = UDim2.new(1, -20, 0, 30)
 infoLabel.Position = UDim2.fromOffset(10, 190)
 infoLabel.BackgroundTransparency = 1
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-infoLabel.Text = "Press M to hide menu"
+infoLabel.Text = "Press J to hide menu"
 infoLabel.Parent = controlPanel
 
 local dragging = false
@@ -138,7 +138,7 @@ local botEnabled = true
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     
-    if input.KeyCode == Enum.KeyCode.M then
+    if input.KeyCode == Enum.KeyCode.J then
         controlPanel.Visible = not controlPanel.Visible
     elseif input.KeyCode == Enum.KeyCode.B then
         botEnabled = not botEnabled

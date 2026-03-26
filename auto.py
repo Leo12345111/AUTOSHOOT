@@ -200,67 +200,80 @@ RunService.RenderStepped:Connect(function()
     end
 
     hitbox.Transparency = 0.5
-    raycastParams.FilterDescendantsInstances = {character, hitbox}
     
     local origin = camera.CFrame.Position
     local direction = camera.CFrame.LookVector * 10000
     
-    local result = workspace:Raycast(origin, direction, raycastParams)
     local hitDistance = 10000
     local isEnemyConfirmed = false
     local isCenterHit = false
     local isHeadHit = false
     local isBodyHit = false
+    local hitPart = nil
+    local finalPosition = origin + direction
+
+    local ignoreList = {character, hitbox}
     
-    if result then
-        hitDistance = result.Distance
-        if result.Instance then
-            local hitPart = result.Instance
-            local model = hitPart:FindFirstAncestorOfClass("Model")
-            
-            if model and model ~= character then
-                local humanoid = model:FindFirstChildOfClass("Humanoid")
-                if humanoid and humanoid.Health > 0 then
-                    local targetPlayer = Players:GetPlayerFromCharacter(model)
-                    
-                    isEnemyConfirmed = true
-                    
-                    if targetPlayer then
-                        if player.Team ~= nil and targetPlayer.Team ~= nil then
-                            if player.Team == targetPlayer.Team then
-                                isEnemyConfirmed = false
-                            end
-                        elseif player.TeamColor == targetPlayer.TeamColor then
-                            if not player.Neutral and not targetPlayer.Neutral then
-                                isEnemyConfirmed = false
-                            end
+    for i = 1, 5 do
+        raycastParams.FilterDescendantsInstances = ignoreList
+        local result = workspace:Raycast(origin, direction, raycastParams)
+        
+        if result then
+            if result.Instance.Name == "HumanoidRootPart" or result.Instance.Transparency == 1 then
+                table.insert(ignoreList, result.Instance)
+            else
+                hitPart = result.Instance
+                hitDistance = result.Distance
+                finalPosition = result.Position
+                break
+            end
+        else
+            break
+        end
+    end
+    
+    if hitPart then
+        local model = hitPart:FindFirstAncestorOfClass("Model")
+        
+        if model and model ~= character then
+            local humanoid = model:FindFirstChildOfClass("Humanoid")
+            if humanoid and humanoid.Health > 0 then
+                local targetPlayer = Players:GetPlayerFromCharacter(model)
+                
+                isEnemyConfirmed = true
+                
+                if targetPlayer then
+                    if player.Team ~= nil and targetPlayer.Team ~= nil then
+                        if player.Team == targetPlayer.Team then
+                            isEnemyConfirmed = false
+                        end
+                    elseif player.TeamColor == targetPlayer.TeamColor then
+                        if not player.Neutral and not targetPlayer.Neutral then
+                            isEnemyConfirmed = false
                         end
                     end
-                    
-                    if isEnemyConfirmed then
-                        -- Check if we hit the head OR an accessory (like hats/hair)
-                        local isAccessory = hitPart:FindFirstAncestorOfClass("Accessory")
+                end
+                
+                if isEnemyConfirmed then
+                    if hitPart.Name == "Head" or hitPart:FindFirstAncestorOfClass("Accessory") or hitPart:FindFirstAncestorOfClass("Hat") then
+                        isCenterHit = true
+                        isHeadHit = true
+                    else
+                        local localPos = hitPart.CFrame:PointToObjectSpace(finalPosition)
+                        local halfSize = hitPart.Size / 2
                         
-                        if hitPart.Name == "Head" or isAccessory then
+                        local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
+                        local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
+                        local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
+                        
+                        local pcts = {pctX, pctY, pctZ}
+                        table.sort(pcts)
+                        
+                        local threshold = 0.75
+                        
+                        if pcts[1] <= threshold and pcts[2] <= threshold then
                             isCenterHit = true
-                            isHeadHit = true
-                        else
-                            local localPos = hitPart.CFrame:PointToObjectSpace(result.Position)
-                            local halfSize = hitPart.Size / 2
-                            
-                            local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
-                            local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
-                            local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
-                            
-                            local pcts = {pctX, pctY, pctZ}
-                            table.sort(pcts)
-                            
-                            local threshold = 0.75
-                            
-                            if pcts[1] <= threshold and pcts[2] <= threshold then
-                                isCenterHit = true
-                                isBodyHit = true
-                            end
+                            isBodyHit = true
                         end
                     end
                 end

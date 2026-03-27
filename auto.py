@@ -190,6 +190,8 @@ raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
 local keyStartTime = 0
 local isHoldingKey = false
+local currentlyEngagedTarget = nil
+local engagementRollResult = false
 
 local function CheckEnemy(targetPlayer)
     if not teamCheckEnabled then return true end
@@ -221,6 +223,8 @@ RunService.RenderStepped:Connect(function()
     if not character then 
         hitbox.Transparency = 1
         indicator.Visible = false
+        currentlyEngagedTarget = nil
+        engagementRollResult = false
         return 
     end
 
@@ -305,10 +309,15 @@ RunService.RenderStepped:Connect(function()
     local hasHeldLongEnough = isHoldingKey and (os.clock() - keyStartTime >= holdTimeRequired)
     
     if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
-        local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
-        local success = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
-        indicator.Visible = success
+        if currentlyEngagedTarget ~= characterModel then
+            currentlyEngagedTarget = characterModel
+            local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
+            engagementRollResult = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
+        end
+        indicator.Visible = engagementRollResult
     else
+        currentlyEngagedTarget = nil
+        engagementRollResult = false
         indicator.Visible = false
     end
 end)

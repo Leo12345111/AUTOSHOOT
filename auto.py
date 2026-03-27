@@ -207,7 +207,9 @@ raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
 local keyStartTime = 0
 local isHoldingKey = false
-local currentHitTarget = nil
+
+local currentTargetChar = nil
+local wasHeadHit = false
 local currentRollSuccess = false
 local lastActionTime = 0
 
@@ -228,7 +230,8 @@ RunService.RenderStepped:Connect(function()
     if not character then 
         hitbox.Transparency = 1
         indicator.Visible = false
-        currentHitTarget = nil
+        currentTargetChar = nil
+        wasHeadHit = false
         currentRollSuccess = false
         return 
     end
@@ -242,6 +245,7 @@ RunService.RenderStepped:Connect(function()
     local isEnemyConfirmed = false
     local isHeadHit = false
     local hitPart = nil
+    local characterModel = nil
     local finalPosition = origin + direction
 
     local ignoreList = {character, hitbox}
@@ -251,7 +255,7 @@ RunService.RenderStepped:Connect(function()
         local result = workspace:Raycast(origin, direction, raycastParams)
         
         if result then
-            if result.Instance.Name == "HumanoidRootPart" or result.Instance.Transparency >= 0.9 then
+            if result.Instance.Name == "HumanoidRootPart" or result.Instance.Transparency >= 0.8 then
                 table.insert(ignoreList, result.Instance)
             else
                 hitPart = result.Instance
@@ -266,7 +270,6 @@ RunService.RenderStepped:Connect(function()
     
     if hitPart then
         local current = hitPart
-        local characterModel = nil
         local humanoid = nil
         
         while current and current ~= workspace do
@@ -312,26 +315,33 @@ RunService.RenderStepped:Connect(function()
     
     if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
         local currentDelay = tonumber(delayBox.Text) or 0.1
+        local needsImmediateRoll = false
         
-        if hitPart ~= currentHitTarget or (os.clock() - lastActionTime >= currentDelay) then
-            currentHitTarget = hitPart
+        if characterModel ~= currentTargetChar then
+            needsImmediateRoll = true
+        elseif isHeadHit ~= wasHeadHit then
+            needsImmediateRoll = true
+        end
+        
+        if needsImmediateRoll then
+            currentTargetChar = characterModel
+            wasHeadHit = isHeadHit
             lastActionTime = os.clock()
             
-            local chanceToHit = 100
-            if isHeadHit then
-                chanceToHit = tonumber(chanceBox.Text) or 100
-            else
-                chanceToHit = tonumber(bodyChanceBox.Text) or 100
-            end
+            local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
+            currentRollSuccess = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
             
-            chanceToHit = math.clamp(chanceToHit, 0, 100)
-            local roll = math.random(1, 100)
-            currentRollSuccess = (roll <= chanceToHit)
+        elseif not currentRollSuccess and (os.clock() - lastActionTime >= currentDelay) then
+            lastActionTime = os.clock()
+            
+            local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
+            currentRollSuccess = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
         end
         
         indicator.Visible = currentRollSuccess
     else
-        currentHitTarget = nil
+        currentTargetChar = nil
+        wasHeadHit = false
         currentRollSuccess = false
         indicator.Visible = false
     end

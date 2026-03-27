@@ -189,6 +189,17 @@ local keyStartTime = 0
 local isHoldingKey = false
 local currentTargetFound = false 
 
+local function CheckEnemy(targetPlayer)
+    if not targetPlayer then return true end
+    if player.Neutral or targetPlayer.Neutral then return true end
+    
+    if player.Team ~= nil and targetPlayer.Team ~= nil then
+        return player.Team ~= targetPlayer.Team
+    end
+    
+    return player.TeamColor ~= targetPlayer.TeamColor
+end
+
 RunService.RenderStepped:Connect(function()
     local character = player.Character
     if not character then 
@@ -248,17 +259,8 @@ RunService.RenderStepped:Connect(function()
         
         if characterModel and characterModel ~= character and humanoid.Health > 0 then
             local targetPlayer = Players:GetPlayerFromCharacter(characterModel)
-            isEnemyConfirmed = true
             
-            if targetPlayer then
-                if not player.Neutral and not targetPlayer.Neutral then
-                    if player.Team ~= nil and targetPlayer.Team ~= nil and player.Team == targetPlayer.Team then
-                        isEnemyConfirmed = false
-                    elseif player.Team == nil and targetPlayer.Team == nil and player.TeamColor == targetPlayer.TeamColor then
-                        isEnemyConfirmed = false
-                    end
-                end
-            end
+            isEnemyConfirmed = CheckEnemy(targetPlayer)
             
             if isEnemyConfirmed then
                 local pName = string.lower(hitPart.Name)

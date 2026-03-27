@@ -251,12 +251,10 @@ RunService.RenderStepped:Connect(function()
             isEnemyConfirmed = true
             
             if targetPlayer then
-                if player.Team ~= nil and targetPlayer.Team ~= nil then
-                    if player.Team == targetPlayer.Team then
+                if not player.Neutral and not targetPlayer.Neutral then
+                    if player.Team ~= nil and targetPlayer.Team ~= nil and player.Team == targetPlayer.Team then
                         isEnemyConfirmed = false
-                    end
-                elseif player.TeamColor == targetPlayer.TeamColor then
-                    if not player.Neutral and not targetPlayer.Neutral then
+                    elseif player.Team == nil and targetPlayer.Team == nil and player.TeamColor == targetPlayer.TeamColor then
                         isEnemyConfirmed = false
                     end
                 end

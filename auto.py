@@ -221,9 +221,9 @@ RunService.RenderStepped:Connect(function()
     hitbox.Transparency = 0.5
     
     local origin = camera.CFrame.Position
-    local direction = camera.CFrame.LookVector * 10000
+    local direction = camera.CFrame.LookVector * 1500
     
-    local hitDistance = 10000
+    local hitDistance = 1500
     local isEnemyConfirmed = false
     local isHeadHit = false
     local hitPart = nil
@@ -232,24 +232,25 @@ RunService.RenderStepped:Connect(function()
     local finalPosition = origin + direction
 
     local ignoreList = {character, hitbox}
+    raycastParams.FilterDescendantsInstances = ignoreList
     
-    for i = 1, 10 do
-        raycastParams.FilterDescendantsInstances = ignoreList
+    for i = 1, 5 do
         local result = workspace:Raycast(origin, direction, raycastParams)
         
         if result then
             local hitInst = result.Instance
-            local model = hitInst:FindFirstAncestorOfClass("Model")
-            local hum = model and model:FindFirstChildOfClass("Humanoid")
             
-            if hitInst.Name == "HumanoidRootPart" or (hitInst.Transparency >= 0.9 and not hum) then
+            if hitInst.Name == "HumanoidRootPart" or hitInst.Transparency >= 0.9 then
                 table.insert(ignoreList, hitInst)
+                raycastParams.FilterDescendantsInstances = ignoreList
             else
                 hitPart = hitInst
                 hitDistance = result.Distance
                 finalPosition = result.Position
-                characterModel = model
-                humanoid = hum
+                characterModel = hitInst:FindFirstAncestorOfClass("Model")
+                if characterModel then
+                    humanoid = characterModel:FindFirstChildOfClass("Humanoid")
+                end
                 break
             end
         else

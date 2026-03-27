@@ -8,13 +8,13 @@ local camera = workspace.CurrentCamera
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "TargetIndicatorGui"
 screenGui.ResetOnSpawn = false
-screenGui.DisplayOrder = 999999999 
-screenGui.IgnoreGuiInset = true 
+screenGui.DisplayOrder = 999999999
+screenGui.IgnoreGuiInset = true
 screenGui.Parent = playerGui
 
 local indicator = Instance.new("Frame")
-indicator.Size = UDim2.fromOffset(25, 25) 
-indicator.Position = UDim2.new(0, 0, 1, -25) 
+indicator.Size = UDim2.fromOffset(25, 25)
+indicator.Position = UDim2.new(0, 0, 1, -25)
 indicator.BackgroundColor3 = Color3.fromRGB(170, 0, 255)
 indicator.BorderSizePixel = 0
 indicator.ZIndex = 999999999
@@ -191,10 +191,6 @@ raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 local keyStartTime = 0
 local isHoldingKey = false
 
-local currentTargetChar = nil
-local wasHeadHit = false
-local currentRollSuccess = false
-
 local function CheckEnemy(targetPlayer)
     if not teamCheckEnabled then return true end
     if not targetPlayer then return true end
@@ -225,9 +221,6 @@ RunService.RenderStepped:Connect(function()
     if not character then 
         hitbox.Transparency = 1
         indicator.Visible = false
-        currentTargetChar = nil
-        wasHeadHit = false
-        currentRollSuccess = false
         return 
     end
 
@@ -312,27 +305,10 @@ RunService.RenderStepped:Connect(function()
     local hasHeldLongEnough = isHoldingKey and (os.clock() - keyStartTime >= holdTimeRequired)
     
     if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
-        local needsImmediateRoll = false
-        
-        if characterModel ~= currentTargetChar then
-            needsImmediateRoll = true
-        elseif isHeadHit ~= wasHeadHit then
-            needsImmediateRoll = true
-        end
-        
-        if needsImmediateRoll then
-            currentTargetChar = characterModel
-            wasHeadHit = isHeadHit
-            
-            local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
-            currentRollSuccess = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
-        end
-        
-        indicator.Visible = currentRollSuccess
+        local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
+        local success = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
+        indicator.Visible = success
     else
-        currentTargetChar = nil
-        wasHeadHit = false
-        currentRollSuccess = false
         indicator.Visible = false
     end
 end)

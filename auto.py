@@ -234,7 +234,7 @@ RunService.RenderStepped:Connect(function()
     local ignoreList = {character, hitbox}
     raycastParams.FilterDescendantsInstances = ignoreList
     
-    for i = 1, 5 do
+    for i = 1, 10 do
         local result = workspace:Raycast(origin, direction, raycastParams)
         
         if result then

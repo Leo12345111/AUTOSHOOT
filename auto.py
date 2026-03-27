@@ -207,6 +207,19 @@ local function CheckEnemy(targetPlayer)
     return player.TeamColor ~= targetPlayer.TeamColor
 end
 
+local function GetCharAndHum(part)
+    local current = part
+    for _ = 1, 10 do
+        if not current or current == workspace then break end
+        local hum = current:FindFirstChildOfClass("Humanoid")
+        if hum then
+            return current, hum
+        end
+        current = current.Parent
+    end
+    return nil, nil
+end
+
 RunService.RenderStepped:Connect(function()
     local character = player.Character
     if not character then 
@@ -239,18 +252,17 @@ RunService.RenderStepped:Connect(function()
         
         if result then
             local hitInst = result.Instance
+            local char, hum = GetCharAndHum(hitInst)
             
-            if hitInst.Name == "HumanoidRootPart" or hitInst.Transparency >= 0.9 then
+            if hitInst.Name == "HumanoidRootPart" or (hitInst.Transparency >= 0.9 and not char) then
                 table.insert(ignoreList, hitInst)
                 raycastParams.FilterDescendantsInstances = ignoreList
             else
                 hitPart = hitInst
                 hitDistance = result.Distance
                 finalPosition = result.Position
-                characterModel = hitInst:FindFirstAncestorOfClass("Model")
-                if characterModel then
-                    humanoid = characterModel:FindFirstChildOfClass("Humanoid")
-                end
+                characterModel = char
+                humanoid = hum
                 break
             end
         else

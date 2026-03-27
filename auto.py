@@ -41,7 +41,7 @@ delayLabel.Size = UDim2.fromOffset(100, 30)
 delayLabel.Position = UDim2.fromOffset(10, 40)
 delayLabel.BackgroundTransparency = 1
 delayLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-delayLabel.Text = "Flash Delay:"
+delayLabel.Text = "Action Delay:"
 delayLabel.TextXAlignment = Enum.TextXAlignment.Left
 delayLabel.Parent = controlPanel
 
@@ -205,10 +205,11 @@ hitbox.Parent = workspace
 local raycastParams = RaycastParams.new()
 raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
-local isFlashing = false
 local keyStartTime = 0
 local isHoldingKey = false
-local currentTargetFound = false 
+local currentHitTarget = nil
+local currentRollSuccess = false
+local lastActionTime = 0
 
 local function CheckEnemy(targetPlayer)
     if not teamCheckEnabled then return true end
@@ -227,8 +228,8 @@ RunService.RenderStepped:Connect(function()
     if not character then 
         hitbox.Transparency = 1
         indicator.Visible = false
-        isFlashing = false
-        currentTargetFound = false
+        currentHitTarget = nil
+        currentRollSuccess = false
         return 
     end
 
@@ -239,20 +240,18 @@ RunService.RenderStepped:Connect(function()
     
     local hitDistance = 10000
     local isEnemyConfirmed = false
-    local isCenterHit = false
     local isHeadHit = false
-    local isBodyHit = false
     local hitPart = nil
     local finalPosition = origin + direction
 
     local ignoreList = {character, hitbox}
     
-    for i = 1, 5 do
+    for i = 1, 10 do
         raycastParams.FilterDescendantsInstances = ignoreList
         local result = workspace:Raycast(origin, direction, raycastParams)
         
         if result then
-            if result.Instance.Name == "HumanoidRootPart" or result.Instance.Transparency == 1 then
+            if result.Instance.Name == "HumanoidRootPart" or result.Instance.Transparency >= 0.9 then
                 table.insert(ignoreList, result.Instance)
             else
                 hitPart = result.Instance
@@ -287,25 +286,9 @@ RunService.RenderStepped:Connect(function()
             if isEnemyConfirmed then
                 local pName = string.lower(hitPart.Name)
                 if string.match(pName, "head") or hitPart:FindFirstAncestorOfClass("Accessory") or hitPart:FindFirstAncestorOfClass("Hat") then
-                    isCenterHit = true
                     isHeadHit = true
                 else
-                    local localPos = hitPart.CFrame:PointToObjectSpace(finalPosition)
-                    local halfSize = hitPart.Size / 2
-                    
-                    local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
-                    local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
-                    local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
-                    
-                    local pcts = {pctX, pctY, pctZ}
-                    table.sort(pcts)
-                    
-                    local threshold = 0.75
-                    
-                    if pcts[1] <= threshold and pcts[2] <= threshold then
-                        isCenterHit = true
-                        isBodyHit = true
-                    end
+                    isHeadHit = false
                 end
             end
         end
@@ -327,35 +310,36 @@ RunService.RenderStepped:Connect(function()
     local holdTimeRequired = tonumber(holdBox.Text) or 0
     local hasHeldLongEnough = isHoldingKey and (os.clock() - keyStartTime >= holdTimeRequired)
     
-    currentTargetFound = isEnemyConfirmed and isCenterHit
-
-    if botEnabled and hasHeldLongEnough and not isFlashing then
-        if currentTargetFound then
-            isFlashing = true
+    if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
+        if hitPart ~= currentHitTarget then
+            currentHitTarget = hitPart
             
-            local currentDelay = tonumber(delayBox.Text) or 0.1
             local chanceToHit = 100
-            
             if isHeadHit then
                 chanceToHit = tonumber(chanceBox.Text) or 100
-            elseif isBodyHit then
+            else
                 chanceToHit = tonumber(bodyChanceBox.Text) or 100
             end
             
             chanceToHit = math.clamp(chanceToHit, 0, 100)
-            
             local roll = math.random(1, 100)
-            local isHit = roll <= chanceToHit
-            
-            if isHit then
-                indicator.Visible = true
-                task.delay(currentDelay, function()
-                    indicator.Visible = false
-                    isFlashing = false
-                end)
-            else
-                isFlashing = false
-            end
+            currentRollSuccess = (roll <= chanceToHit)
         end
+        
+        if currentRollSuccess then
+            indicator.Visible = true
+            
+            local currentDelay = tonumber(delayBox.Text) or 0.1
+            if os.clock() - lastActionTime >= currentDelay then
+                lastActionTime = os.clock()
+                
+            end
+        else
+            indicator.Visible = false
+        end
+    else
+        currentHitTarget = nil
+        currentRollSuccess = false
+        indicator.Visible = false
     end
 end)

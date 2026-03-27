@@ -233,48 +233,56 @@ RunService.RenderStepped:Connect(function()
     end
     
     if hitPart then
-        local model = hitPart:FindFirstAncestorOfClass("Model")
+        local current = hitPart
+        local characterModel = nil
+        local humanoid = nil
         
-        if model and model ~= character then
-            local humanoid = model:FindFirstChildOfClass("Humanoid")
-            if humanoid and humanoid.Health > 0 then
-                local targetPlayer = Players:GetPlayerFromCharacter(model)
-                
-                isEnemyConfirmed = true
-                
-                if targetPlayer then
-                    if player.Team ~= nil and targetPlayer.Team ~= nil then
-                        if player.Team == targetPlayer.Team then
-                            isEnemyConfirmed = false
-                        end
-                    elseif player.TeamColor == targetPlayer.TeamColor then
-                        if not player.Neutral and not targetPlayer.Neutral then
-                            isEnemyConfirmed = false
-                        end
+        while current and current ~= workspace do
+            humanoid = current:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                characterModel = current
+                break
+            end
+            current = current.Parent
+        end
+        
+        if characterModel and characterModel ~= character and humanoid.Health > 0 then
+            local targetPlayer = Players:GetPlayerFromCharacter(characterModel)
+            isEnemyConfirmed = true
+            
+            if targetPlayer then
+                if player.Team ~= nil and targetPlayer.Team ~= nil then
+                    if player.Team == targetPlayer.Team then
+                        isEnemyConfirmed = false
+                    end
+                elseif player.TeamColor == targetPlayer.TeamColor then
+                    if not player.Neutral and not targetPlayer.Neutral then
+                        isEnemyConfirmed = false
                     end
                 end
-                
-                if isEnemyConfirmed then
-                    if hitPart.Name == "Head" or hitPart:FindFirstAncestorOfClass("Accessory") or hitPart:FindFirstAncestorOfClass("Hat") then
+            end
+            
+            if isEnemyConfirmed then
+                local pName = string.lower(hitPart.Name)
+                if string.match(pName, "head") or hitPart:FindFirstAncestorOfClass("Accessory") or hitPart:FindFirstAncestorOfClass("Hat") then
+                    isCenterHit = true
+                    isHeadHit = true
+                else
+                    local localPos = hitPart.CFrame:PointToObjectSpace(finalPosition)
+                    local halfSize = hitPart.Size / 2
+                    
+                    local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
+                    local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
+                    local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
+                    
+                    local pcts = {pctX, pctY, pctZ}
+                    table.sort(pcts)
+                    
+                    local threshold = 0.75
+                    
+                    if pcts[1] <= threshold and pcts[2] <= threshold then
                         isCenterHit = true
-                        isHeadHit = true
-                    else
-                        local localPos = hitPart.CFrame:PointToObjectSpace(finalPosition)
-                        local halfSize = hitPart.Size / 2
-                        
-                        local pctX = halfSize.X > 0.001 and (math.abs(localPos.X) / halfSize.X) or 0
-                        local pctY = halfSize.Y > 0.001 and (math.abs(localPos.Y) / halfSize.Y) or 0
-                        local pctZ = halfSize.Z > 0.001 and (math.abs(localPos.Z) / halfSize.Z) or 0
-                        
-                        local pcts = {pctX, pctY, pctZ}
-                        table.sort(pcts)
-                        
-                        local threshold = 0.75
-                        
-                        if pcts[1] <= threshold and pcts[2] <= threshold then
-                            isCenterHit = true
-                            isBodyHit = true
-                        end
+                        isBodyHit = true
                     end
                 end
             end

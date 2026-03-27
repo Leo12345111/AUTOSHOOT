@@ -22,8 +22,8 @@ indicator.Visible = false
 indicator.Parent = screenGui
 
 local controlPanel = Instance.new("Frame")
-controlPanel.Size = UDim2.fromOffset(200, 270)
-controlPanel.Position = UDim2.new(0.5, -100, 0.5, -135)
+controlPanel.Size = UDim2.fromOffset(200, 310)
+controlPanel.Position = UDim2.new(0.5, -100, 0.5, -155)
 controlPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 controlPanel.BorderSizePixel = 2
 controlPanel.Active = true
@@ -104,9 +104,17 @@ holdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 holdBox.Text = "0"
 holdBox.Parent = controlPanel
 
+local teamCheckButton = Instance.new("TextButton")
+teamCheckButton.Size = UDim2.fromOffset(180, 30)
+teamCheckButton.Position = UDim2.fromOffset(10, 200)
+teamCheckButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+teamCheckButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+teamCheckButton.Text = "Team Check: ON"
+teamCheckButton.Parent = controlPanel
+
 local toggleLabel = Instance.new("TextLabel")
 toggleLabel.Size = UDim2.new(1, -20, 0, 30)
-toggleLabel.Position = UDim2.fromOffset(10, 200)
+toggleLabel.Position = UDim2.fromOffset(10, 240)
 toggleLabel.BackgroundTransparency = 1
 toggleLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 toggleLabel.Text = "Status: ON (B to Toggle)"
@@ -114,11 +122,24 @@ toggleLabel.Parent = controlPanel
 
 local infoLabel = Instance.new("TextLabel")
 infoLabel.Size = UDim2.new(1, -20, 0, 30)
-infoLabel.Position = UDim2.fromOffset(10, 230)
+infoLabel.Position = UDim2.fromOffset(10, 270)
 infoLabel.BackgroundTransparency = 1
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoLabel.Text = "Press J to hide menu"
 infoLabel.Parent = controlPanel
+
+local teamCheckEnabled = true
+
+teamCheckButton.MouseButton1Click:Connect(function()
+    teamCheckEnabled = not teamCheckEnabled
+    if teamCheckEnabled then
+        teamCheckButton.Text = "Team Check: ON"
+        teamCheckButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        teamCheckButton.Text = "Team Check: OFF"
+        teamCheckButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+    end
+end)
 
 local dragging = false
 local dragInput, mousePos, framePos
@@ -190,6 +211,7 @@ local isHoldingKey = false
 local currentTargetFound = false 
 
 local function CheckEnemy(targetPlayer)
+    if not teamCheckEnabled then return true end
     if not targetPlayer then return true end
     if player.Neutral or targetPlayer.Neutral then return true end
     

@@ -311,8 +311,11 @@ RunService.RenderStepped:Connect(function()
     local hasHeldLongEnough = isHoldingKey and (os.clock() - keyStartTime >= holdTimeRequired)
     
     if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
-        if hitPart ~= currentHitTarget then
+        local currentDelay = tonumber(delayBox.Text) or 0.1
+        
+        if hitPart ~= currentHitTarget or (os.clock() - lastActionTime >= currentDelay) then
             currentHitTarget = hitPart
+            lastActionTime = os.clock()
             
             local chanceToHit = 100
             if isHeadHit then
@@ -326,17 +329,7 @@ RunService.RenderStepped:Connect(function()
             currentRollSuccess = (roll <= chanceToHit)
         end
         
-        if currentRollSuccess then
-            indicator.Visible = true
-            
-            local currentDelay = tonumber(delayBox.Text) or 0.1
-            if os.clock() - lastActionTime >= currentDelay then
-                lastActionTime = os.clock()
-                
-            end
-        else
-            indicator.Visible = false
-        end
+        indicator.Visible = currentRollSuccess
     else
         currentHitTarget = nil
         currentRollSuccess = false

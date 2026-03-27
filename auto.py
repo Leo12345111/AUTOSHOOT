@@ -22,8 +22,8 @@ indicator.Visible = false
 indicator.Parent = screenGui
 
 local controlPanel = Instance.new("Frame")
-controlPanel.Size = UDim2.fromOffset(200, 310)
-controlPanel.Position = UDim2.new(0.5, -100, 0.5, -155)
+controlPanel.Size = UDim2.fromOffset(200, 270)
+controlPanel.Position = UDim2.new(0.5, -100, 0.5, -135)
 controlPanel.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 controlPanel.BorderSizePixel = 2
 controlPanel.Active = true
@@ -36,26 +36,9 @@ titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 titleLabel.Text = "Auto Shoot Settings"
 titleLabel.Parent = controlPanel
 
-local delayLabel = Instance.new("TextLabel")
-delayLabel.Size = UDim2.fromOffset(100, 30)
-delayLabel.Position = UDim2.fromOffset(10, 40)
-delayLabel.BackgroundTransparency = 1
-delayLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-delayLabel.Text = "Action Delay:"
-delayLabel.TextXAlignment = Enum.TextXAlignment.Left
-delayLabel.Parent = controlPanel
-
-local delayBox = Instance.new("TextBox")
-delayBox.Size = UDim2.fromOffset(70, 30)
-delayBox.Position = UDim2.fromOffset(120, 40)
-delayBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-delayBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-delayBox.Text = "0.1"
-delayBox.Parent = controlPanel
-
 local chanceLabel = Instance.new("TextLabel")
 chanceLabel.Size = UDim2.fromOffset(100, 30)
-chanceLabel.Position = UDim2.fromOffset(10, 80)
+chanceLabel.Position = UDim2.fromOffset(10, 40)
 chanceLabel.BackgroundTransparency = 1
 chanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 chanceLabel.Text = "Head Chance %:"
@@ -64,7 +47,7 @@ chanceLabel.Parent = controlPanel
 
 local chanceBox = Instance.new("TextBox")
 chanceBox.Size = UDim2.fromOffset(70, 30)
-chanceBox.Position = UDim2.fromOffset(120, 80)
+chanceBox.Position = UDim2.fromOffset(120, 40)
 chanceBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 chanceBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 chanceBox.Text = "100"
@@ -72,7 +55,7 @@ chanceBox.Parent = controlPanel
 
 local bodyChanceLabel = Instance.new("TextLabel")
 bodyChanceLabel.Size = UDim2.fromOffset(100, 30)
-bodyChanceLabel.Position = UDim2.fromOffset(10, 120)
+bodyChanceLabel.Position = UDim2.fromOffset(10, 80)
 bodyChanceLabel.BackgroundTransparency = 1
 bodyChanceLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 bodyChanceLabel.Text = "Body Chance %:"
@@ -81,7 +64,7 @@ bodyChanceLabel.Parent = controlPanel
 
 local bodyChanceBox = Instance.new("TextBox")
 bodyChanceBox.Size = UDim2.fromOffset(70, 30)
-bodyChanceBox.Position = UDim2.fromOffset(120, 120)
+bodyChanceBox.Position = UDim2.fromOffset(120, 80)
 bodyChanceBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 bodyChanceBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 bodyChanceBox.Text = "100"
@@ -89,7 +72,7 @@ bodyChanceBox.Parent = controlPanel
 
 local holdLabel = Instance.new("TextLabel")
 holdLabel.Size = UDim2.fromOffset(100, 30)
-holdLabel.Position = UDim2.fromOffset(10, 160)
+holdLabel.Position = UDim2.fromOffset(10, 120)
 holdLabel.BackgroundTransparency = 1
 holdLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 holdLabel.Text = "Hold Time (s):"
@@ -98,7 +81,7 @@ holdLabel.Parent = controlPanel
 
 local holdBox = Instance.new("TextBox")
 holdBox.Size = UDim2.fromOffset(70, 30)
-holdBox.Position = UDim2.fromOffset(120, 160)
+holdBox.Position = UDim2.fromOffset(120, 120)
 holdBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 holdBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 holdBox.Text = "0"
@@ -106,15 +89,15 @@ holdBox.Parent = controlPanel
 
 local teamCheckButton = Instance.new("TextButton")
 teamCheckButton.Size = UDim2.fromOffset(180, 30)
-teamCheckButton.Position = UDim2.fromOffset(10, 200)
+teamCheckButton.Position = UDim2.fromOffset(10, 160)
 teamCheckButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-teamCheckButton.TextColor3 = Color3.fromRGB(0, 255, 0)
-teamCheckButton.Text = "Team Check: ON"
+teamCheckButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+teamCheckButton.Text = "Team Check: OFF"
 teamCheckButton.Parent = controlPanel
 
 local toggleLabel = Instance.new("TextLabel")
 toggleLabel.Size = UDim2.new(1, -20, 0, 30)
-toggleLabel.Position = UDim2.fromOffset(10, 240)
+toggleLabel.Position = UDim2.fromOffset(10, 200)
 toggleLabel.BackgroundTransparency = 1
 toggleLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
 toggleLabel.Text = "Status: ON (B to Toggle)"
@@ -122,13 +105,13 @@ toggleLabel.Parent = controlPanel
 
 local infoLabel = Instance.new("TextLabel")
 infoLabel.Size = UDim2.new(1, -20, 0, 30)
-infoLabel.Position = UDim2.fromOffset(10, 270)
+infoLabel.Position = UDim2.fromOffset(10, 230)
 infoLabel.BackgroundTransparency = 1
 infoLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
 infoLabel.Text = "Press J to hide menu"
 infoLabel.Parent = controlPanel
 
-local teamCheckEnabled = true
+local teamCheckEnabled = false
 
 teamCheckButton.MouseButton1Click:Connect(function()
     teamCheckEnabled = not teamCheckEnabled
@@ -211,7 +194,6 @@ local isHoldingKey = false
 local currentTargetChar = nil
 local wasHeadHit = false
 local currentRollSuccess = false
-local lastActionTime = 0
 
 local function CheckEnemy(targetPlayer)
     if not teamCheckEnabled then return true end
@@ -250,12 +232,13 @@ RunService.RenderStepped:Connect(function()
 
     local ignoreList = {character, hitbox}
     
-    for i = 1, 10 do
+    for i = 1, 15 do
         raycastParams.FilterDescendantsInstances = ignoreList
         local result = workspace:Raycast(origin, direction, raycastParams)
         
         if result then
-            if result.Instance.Name == "HumanoidRootPart" or result.Instance.Transparency >= 0.8 then
+            local instName = string.lower(result.Instance.Name)
+            if instName == "humanoidrootpart" or result.Instance.Transparency >= 0.8 or string.match(instName, "arm") or string.match(instName, "leg") or string.match(instName, "hand") or string.match(instName, "foot") then
                 table.insert(ignoreList, result.Instance)
             else
                 hitPart = result.Instance
@@ -314,7 +297,6 @@ RunService.RenderStepped:Connect(function()
     local hasHeldLongEnough = isHoldingKey and (os.clock() - keyStartTime >= holdTimeRequired)
     
     if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
-        local currentDelay = tonumber(delayBox.Text) or 0.1
         local needsImmediateRoll = false
         
         if characterModel ~= currentTargetChar then
@@ -326,13 +308,6 @@ RunService.RenderStepped:Connect(function()
         if needsImmediateRoll then
             currentTargetChar = characterModel
             wasHeadHit = isHeadHit
-            lastActionTime = os.clock()
-            
-            local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
-            currentRollSuccess = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
-            
-        elseif not currentRollSuccess and (os.clock() - lastActionTime >= currentDelay) then
-            lastActionTime = os.clock()
             
             local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
             currentRollSuccess = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))

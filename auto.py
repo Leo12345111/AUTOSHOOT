@@ -354,9 +354,7 @@ RunService.RenderStepped:Connect(function()
                     isFlashing = false
                 end)
             else
-                task.delay(currentDelay, function()
-                    isFlashing = false
-                end)
+                isFlashing = false
             end
         end
     end

@@ -193,6 +193,8 @@ local isHoldingKey = false
 local currentlyEngagedTarget = nil
 local currentTargetHeadRoll = false
 local currentTargetBodyRoll = false
+local lastTargetModel = nil
+local lastTargetTime = 0
 
 local function CheckEnemy(targetPlayer)
     if not teamCheckEnabled then return true end
@@ -278,7 +280,7 @@ RunService.RenderStepped:Connect(function()
             local head = characterModel:FindFirstChild("Head")
             if head then
                 local distance = (finalPosition - head.Position).Magnitude
-                if distance <= 0.85 then
+                if distance <= 0.85 and finalPosition.Y >= (head.Position.Y - 0.6) then
                     isHeadHit = true
                 else
                     isHeadHit = false
@@ -312,14 +314,20 @@ RunService.RenderStepped:Connect(function()
     
     if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
         if currentlyEngagedTarget ~= characterModel then
-            currentlyEngagedTarget = characterModel
-            
-            local headChanceToHit = tonumber(chanceBox.Text) or 100
-            local bodyChanceToHit = tonumber(bodyChanceBox.Text) or 100
-            
-            currentTargetHeadRoll = (math.random(1, 100) <= math.clamp(headChanceToHit, 0, 100))
-            currentTargetBodyRoll = (math.random(1, 100) <= math.clamp(bodyChanceToHit, 0, 100))
+            if lastTargetModel == characterModel and (os.clock() - lastTargetTime) < 0.25 then
+                currentlyEngagedTarget = characterModel
+            else
+                currentlyEngagedTarget = characterModel
+                local headChanceToHit = tonumber(chanceBox.Text) or 100
+                local bodyChanceToHit = tonumber(bodyChanceBox.Text) or 100
+                
+                currentTargetHeadRoll = (math.random(1, 100) <= math.clamp(headChanceToHit, 0, 100))
+                currentTargetBodyRoll = (math.random(1, 100) <= math.clamp(bodyChanceToHit, 0, 100))
+            end
         end
+        
+        lastTargetModel = characterModel
+        lastTargetTime = os.clock()
         
         if isHeadHit then
             indicator.Visible = currentTargetHeadRoll
@@ -328,8 +336,6 @@ RunService.RenderStepped:Connect(function()
         end
     else
         currentlyEngagedTarget = nil
-        currentTargetHeadRoll = false
-        currentTargetBodyRoll = false
         indicator.Visible = false
     end
 end)

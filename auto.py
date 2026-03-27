@@ -67,7 +67,7 @@ bodyChanceBox.Size = UDim2.fromOffset(70, 30)
 bodyChanceBox.Position = UDim2.fromOffset(120, 80)
 bodyChanceBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 bodyChanceBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-bodyChanceBox.Text = "100"
+bodyChanceBox.Text = "0"
 bodyChanceBox.Parent = controlPanel
 
 local holdLabel = Instance.new("TextLabel")
@@ -278,14 +278,14 @@ RunService.RenderStepped:Connect(function()
             local head = characterModel:FindFirstChild("Head")
             if head then
                 local distance = (finalPosition - head.Position).Magnitude
-                if distance <= 1.5 then
+                if distance <= 0.85 then
                     isHeadHit = true
                 else
                     isHeadHit = false
                 end
             else
                 local pName = string.lower(hitPart.Name)
-                if string.match(pName, "head") or hitPart:FindFirstAncestorOfClass("Accessory") or hitPart:FindFirstAncestorOfClass("Hat") then
+                if string.match(pName, "head") then
                     isHeadHit = true
                 else
                     isHeadHit = false

@@ -233,35 +233,23 @@ RunService.RenderStepped:Connect(function()
 
     local ignoreList = {character, hitbox}
     
-    for i = 1, 15 do
+    for i = 1, 10 do
         raycastParams.FilterDescendantsInstances = ignoreList
         local result = workspace:Raycast(origin, direction, raycastParams)
         
         if result then
             local hitInst = result.Instance
-            local instName = string.lower(hitInst.Name)
+            local model = hitInst:FindFirstAncestorOfClass("Model")
+            local hum = model and model:FindFirstChildOfClass("Humanoid")
             
-            local current = hitInst
-            local foundChar = nil
-            local foundHumanoid = nil
-            
-            while current and current ~= workspace do
-                foundHumanoid = current:FindFirstChildOfClass("Humanoid")
-                if foundHumanoid then
-                    foundChar = current
-                    break
-                end
-                current = current.Parent
-            end
-            
-            if instName == "humanoidrootpart" or (hitInst.Transparency >= 0.9 and not foundChar) then
+            if hitInst.Name == "HumanoidRootPart" or (hitInst.Transparency >= 0.9 and not hum) then
                 table.insert(ignoreList, hitInst)
             else
                 hitPart = hitInst
                 hitDistance = result.Distance
                 finalPosition = result.Position
-                characterModel = foundChar
-                humanoid = foundHumanoid
+                characterModel = model
+                humanoid = hum
                 break
             end
         else

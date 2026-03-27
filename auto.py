@@ -228,6 +228,7 @@ RunService.RenderStepped:Connect(function()
     local isHeadHit = false
     local hitPart = nil
     local characterModel = nil
+    local humanoid = nil
     local finalPosition = origin + direction
 
     local ignoreList = {character, hitbox}
@@ -237,13 +238,30 @@ RunService.RenderStepped:Connect(function()
         local result = workspace:Raycast(origin, direction, raycastParams)
         
         if result then
-            local instName = string.lower(result.Instance.Name)
-            if instName == "humanoidrootpart" or result.Instance.Transparency >= 0.8 or string.match(instName, "arm") or string.match(instName, "leg") or string.match(instName, "hand") or string.match(instName, "foot") then
-                table.insert(ignoreList, result.Instance)
+            local hitInst = result.Instance
+            local instName = string.lower(hitInst.Name)
+            
+            local current = hitInst
+            local foundChar = nil
+            local foundHumanoid = nil
+            
+            while current and current ~= workspace do
+                foundHumanoid = current:FindFirstChildOfClass("Humanoid")
+                if foundHumanoid then
+                    foundChar = current
+                    break
+                end
+                current = current.Parent
+            end
+            
+            if instName == "humanoidrootpart" or (hitInst.Transparency >= 0.9 and not foundChar) then
+                table.insert(ignoreList, hitInst)
             else
-                hitPart = result.Instance
+                hitPart = hitInst
                 hitDistance = result.Distance
                 finalPosition = result.Position
+                characterModel = foundChar
+                humanoid = foundHumanoid
                 break
             end
         else
@@ -251,31 +269,17 @@ RunService.RenderStepped:Connect(function()
         end
     end
     
-    if hitPart then
-        local current = hitPart
-        local humanoid = nil
+    if hitPart and characterModel and characterModel ~= character and humanoid and humanoid.Health > 0 then
+        local targetPlayer = Players:GetPlayerFromCharacter(characterModel)
         
-        while current and current ~= workspace do
-            humanoid = current:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                characterModel = current
-                break
-            end
-            current = current.Parent
-        end
+        isEnemyConfirmed = CheckEnemy(targetPlayer)
         
-        if characterModel and characterModel ~= character and humanoid.Health > 0 then
-            local targetPlayer = Players:GetPlayerFromCharacter(characterModel)
-            
-            isEnemyConfirmed = CheckEnemy(targetPlayer)
-            
-            if isEnemyConfirmed then
-                local pName = string.lower(hitPart.Name)
-                if string.match(pName, "head") or hitPart:FindFirstAncestorOfClass("Accessory") or hitPart:FindFirstAncestorOfClass("Hat") then
-                    isHeadHit = true
-                else
-                    isHeadHit = false
-                end
+        if isEnemyConfirmed then
+            local pName = string.lower(hitPart.Name)
+            if string.match(pName, "head") or hitPart:FindFirstAncestorOfClass("Accessory") or hitPart:FindFirstAncestorOfClass("Hat") then
+                isHeadHit = true
+            else
+                isHeadHit = false
             end
         end
     end

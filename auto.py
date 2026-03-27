@@ -311,7 +311,7 @@ RunService.RenderStepped:Connect(function()
         end
     end
     
-    hitbox.Size = Vector3.new(0.5, 0.5, hitDistance)
+    hitbox.Size = Vector3.new(0.1, 0.1, hitDistance)
     hitbox.CFrame = camera.CFrame * CFrame.new(0, 0, -hitDistance / 2)
     
     if UserInputService:IsKeyDown(Enum.KeyCode.N) then

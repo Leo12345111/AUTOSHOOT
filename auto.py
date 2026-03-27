@@ -191,6 +191,9 @@ raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 local keyStartTime = 0
 local isHoldingKey = false
 local currentlyEngagedTarget = nil
+local targetFirstSeenTime = 0
+local hasRolledBody = false
+local hasRolledHead = false
 local engagementRollResult = false
 
 local function CheckEnemy(targetPlayer)
@@ -224,6 +227,8 @@ RunService.RenderStepped:Connect(function()
         hitbox.Transparency = 1
         indicator.Visible = false
         currentlyEngagedTarget = nil
+        hasRolledBody = false
+        hasRolledHead = false
         engagementRollResult = false
         return 
     end
@@ -311,12 +316,35 @@ RunService.RenderStepped:Connect(function()
     if botEnabled and hasHeldLongEnough and isEnemyConfirmed then
         if currentlyEngagedTarget ~= characterModel then
             currentlyEngagedTarget = characterModel
-            local chanceToHit = isHeadHit and (tonumber(chanceBox.Text) or 100) or (tonumber(bodyChanceBox.Text) or 100)
-            engagementRollResult = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
+            targetFirstSeenTime = os.clock()
+            hasRolledBody = false
+            hasRolledHead = false
+            engagementRollResult = false
         end
+        
+        local timeOnTarget = os.clock() - targetFirstSeenTime
+        
+        if isHeadHit then
+            if not hasRolledHead then
+                if timeOnTarget <= 0.25 or not hasRolledBody then
+                    local chanceToHit = tonumber(chanceBox.Text) or 100
+                    engagementRollResult = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
+                    hasRolledHead = true
+                end
+            end
+        else
+            if not hasRolledBody then
+                local chanceToHit = tonumber(bodyChanceBox.Text) or 100
+                engagementRollResult = (math.random(1, 100) <= math.clamp(chanceToHit, 0, 100))
+                hasRolledBody = true
+            end
+        end
+        
         indicator.Visible = engagementRollResult
     else
         currentlyEngagedTarget = nil
+        hasRolledBody = false
+        hasRolledHead = false
         engagementRollResult = false
         indicator.Visible = false
     end

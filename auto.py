@@ -275,21 +275,20 @@ RunService.RenderStepped:Connect(function()
         isEnemyConfirmed = CheckEnemy(targetPlayer)
         
         if isEnemyConfirmed then
+            local pName = string.lower(hitPart.Name)
             local head = characterModel:FindFirstChild("Head")
-            if head then
+
+            if string.find(pName, "head") then
+                isHeadHit = true
+            elseif head then
                 local distance = (finalPosition - head.Position).Magnitude
-                if distance <= 0.85 then
+                if distance <= 1.5 and hitPart.Parent:IsA("Accessory") then
                     isHeadHit = true
                 else
                     isHeadHit = false
                 end
             else
-                local pName = string.lower(hitPart.Name)
-                if string.match(pName, "head") then
-                    isHeadHit = true
-                else
-                    isHeadHit = false
-                end
+                isHeadHit = false
             end
         end
     end
